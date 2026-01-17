@@ -365,8 +365,14 @@ function renderHistory(db) {
   el.innerHTML = keys
     .map((k) => {
       const d = db[k];
-      const m = d.meds?.morning?.taken ? "✓" : "—";
-      const e = d.meds?.evening?.taken ? "✓" : "—";
+     const m = d.meds?.morning?.taken
+  ? `✓ ${d.meds.morning.time || ""}`.trim()
+  : "—";
+
+const e = d.meds?.evening?.taken
+  ? `✓ ${d.meds.evening.time || ""}`.trim()
+  : "—";
+
       const g = d.glucose?.length || 0;
       return `
         <div class="day" data-day="${k}">
@@ -734,5 +740,6 @@ if ("serviceWorker" in navigator) {
       .catch(console.error);
   });
 }
+
 
 
