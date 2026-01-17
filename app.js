@@ -701,3 +701,13 @@ function attachTimeInputFormatter(inputEl) {
     });
   }
 })();
+// ---------- PWA: Service Worker ----------
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./sw.js")
+      .then(() => console.log("🟢 SteadyDay PWA ready"))
+      .catch(console.error);
+  });
+}
+
