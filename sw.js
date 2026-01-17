@@ -1,4 +1,5 @@
-const CACHE_NAME = "steadyday-v1";
+const CACHE_NAME = "steadyday-v2"; // bump this any time you change assets
+
 const ASSETS = [
   "./",
   "./index.html",
@@ -7,7 +8,7 @@ const ASSETS = [
   "./manifest.json",
   "./favicon.svg",
   "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "./icons/icon-512.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -27,7 +28,19 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  const req = event.request;
+
+  // ✅ If the user is navigating (refreshing the page), serve index.html
+  // This makes offline refresh work and prevents weird 404s on GitHub Pages.
+  if (req.mode === "navigate") {
+    event.respondWith(
+      fetch(req).catch(() => caches.match("./index.html"))
+    );
+    return;
+  }
+
+  // ✅ For all other requests: cache-first, then network
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
+    caches.match(req).then((cached) => cached || fetch(req))
   );
 });
