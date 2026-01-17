@@ -1,0 +1,140 @@
+<!doctype html>
+
+<html lang="en-GB">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SteadyDay</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="wrap">
+   <header class="top">
+  <div>
+    <h1 class="brand">
+      <span class="dot"></span>
+      SteadyDay
+    </h1>
+    <p class="sub tagline">Helping you care for yourself,<br><span>one day at a time.</span></p>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="today" type="button">Today</button>
+    <button class="tab" data-tab="history" type="button">History</button>
+  </nav>
+</header>
+
+
+    <!-- TODAY -->
+    <section id="today" class="card">
+  <h2 id="todayTitle">Today</h2>
+<div id="todayDate" class="today-date"></div>
+<div class="day-progress">
+  <span id="progMorning" class="dot">Morning</span>
+  <span id="progEvening" class="dot">Evening</span>
+</div>
+
+
+
+<!-- MEDS -->
+<div class="grid2">
+  <button id="morningBtn" class="toggle" type="button">
+    <span>Morning meds</span>
+    <strong id="morningState">Not taken</strong>
+  </button>
+
+  <button id="eveningBtn" class="toggle" type="button">
+    <span>Evening meds</span>
+    <strong id="eveningState">Not taken</strong>
+  </button>
+</div>
+
+
+<div class="divider"></div>
+
+<div class="schedule">
+  <div class="sched-row">
+    <div class="sched-item">
+      <label class="lbl" for="morningTime">Morning target</label>
+<input id="morningTime" type="text" inputmode="numeric" placeholder="08:00" autocomplete="off" />
+    </div>
+
+    <div class="sched-item">
+      <label class="lbl" for="eveningTime">Evening target</label>
+      <input id="eveningTime" type="text" inputmode="numeric" placeholder="20:00" autocomplete="off" />
+    </div>
+
+    <button id="saveSchedule" class="btn small">Save</button>
+  </div>
+
+  <div class="sched-row">
+    <button id="remindMorning" class="btn secondary small">
+      Enable morning reminder
+    </button>
+    <button id="remindEvening" class="btn secondary small">
+      Enable evening reminder
+    </button>
+    <span id="lateStatus" class="late">On track</span>
+  </div>
+</div>
+
+
+<div class="divider"></div>
+
+<!-- GLUCOSE -->
+<div class="row">
+  <label class="lbl" for="glucose">Blood sugar (optional)</label>
+
+  <div class="glucoseRow">
+    <input id="glucose" type="number" inputmode="numeric" placeholder="e.g., 118" autocomplete="off" />
+
+
+    <select id="glucoseTag" class="select">
+      <option value="Fasting">Fasting</option>
+      <option value="Before meal">Before meal</option>
+      <option value="After meal">After meal</option>
+      <option value="Bedtime">Bedtime</option>
+      <option value="Other">Other</option>
+    </select>
+
+<input id="glucoseNote" class="note" type="text" placeholder="Note (optional)" autocomplete="off" />
+
+
+    <button id="addGlucose" class="btn">Add</button>
+  </div>
+
+  <div id="glucoseList" class="list muted">No readings yet.</div>
+</div>
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <label class="lbl" for="notes">How do you feel today?</label>
+        <textarea id="notes" rows="4" placeholder="Quick notes…"></textarea>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section id="history" class="card hidden">
+  <div class="history-head">
+    <h2>History</h2>
+    <button id="exportDoctor" class="btn">Doctor export</button>
+  </div>
+
+  <div id="historyList" class="history"></div>
+  <p class="hint muted">Tap a day to view what you logged.</p>
+</section>
+
+
+    <footer class="foot muted">
+      Data stays on your device. Not medical advice.
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+<div id="toast" class="toast">Saved ✓</div>
+
+</body>
+</html>
