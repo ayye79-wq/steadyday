@@ -129,17 +129,22 @@ function setLateStatus(today) {
   const sch = today.schedule || {};
   const now = minutesNow();
 
+  const DUE_SOON_WINDOW = 30; // mins before target
+  const GRACE = 10;           // mins after target before overdue/late
+
+  // Targets
   const mTarget = timeToMinutes(normalizeHHMM(sch.morningTarget));
   const eTarget = timeToMinutes(normalizeHHMM(sch.eveningTarget));
 
+  // Taken flags + times
   const mTaken = !!today.meds?.morning?.taken;
   const eTaken = !!today.meds?.evening?.taken;
 
-  const mTakenMin = timeToMinutes(normalizeHHMM(today.meds?.morning?.time));
-  const eTakenMin = timeToMinutes(normalizeHHMM(today.meds?.evening?.time));
+  const mTakenHM = normalizeHHMM(today.meds?.morning?.time);
+  const eTakenHM = normalizeHHMM(today.meds?.evening?.time);
 
-  const DUE_SOON_WINDOW = 30; // mins before target
-  const GRACE = 10; // mins after target before overdue/late
+  const mTakenMin = timeToMinutes(mTakenHM);
+  const eTakenMin = timeToMinutes(eTakenHM);
 
   function set(text, mode) {
     el.textContent = text;
@@ -147,43 +152,62 @@ function setLateStatus(today) {
     if (mode) el.classList.add(mode);
   }
 
-  // If both done
+  function lateBy(takenMin, targetMin) {
+    if (takenMin == null || targetMin == null) return null;
+    return takenMin - targetMin;
+  }
+
+  // ✅ If both done: show summary (late wins)
   if (mTaken && eTaken) {
-    if (eTarget != null && eTakenMin != null && eTakenMin > eTarget + GRACE) {
-      return set(`All done (evening late by ${eTakenMin - eTarget}m)`, "late");
+    const mDiff = lateBy(mTakenMin, mTarget);
+    const eDiff = lateBy(eTakenMin, eTarget);
+
+    if (eDiff != null && eDiff > GRACE) {
+      return set(`All done • Evening late by ${eDiff}m`, "late");
     }
-    if (mTarget != null && mTakenMin != null && mTakenMin > mTarget + GRACE) {
-      return set(`All done (morning late by ${mTakenMin - mTarget}m)`, "late");
+    if (mDiff != null && mDiff > GRACE) {
+      return set(`All done • Morning late by ${mDiff}m`, "late");
     }
     return set("All done today", "ok");
   }
 
-  // BEFORE morning taken: due/overdue logic
+  // ✅ If morning NOT taken yet: morning is the current focus
   if (!mTaken && mTarget != null) {
     if (now >= mTarget + GRACE) return set("Morning overdue", "late");
     if (now >= mTarget - DUE_SOON_WINDOW) return set("Morning due soon", "due");
     return set("On track", "ok");
   }
 
-  // AFTER morning taken (and evening not taken):
-  if (mTaken && !eTaken && mTarget != null && mTakenMin != null) {
-    if (mTakenMin > mTarget + GRACE) {
-      return set(`Morning taken late by ${mTakenMin - mTarget}m`, "late");
+  // ✅ Morning taken, evening not taken: show morning result briefly + track evening
+  if (mTaken && !eTaken) {
+    // If we have a morning target + taken time, show if it was late/on-time
+    if (mTarget != null && mTakenMin != null) {
+      const diff = mTakenMin - mTarget;
+      if (diff > GRACE) {
+        // Morning was late — surface that (strong signal)
+        return set(`Morning taken at ${mTakenHM} • Late by ${diff}m`, "late");
+      }
     }
+
+    // Otherwise focus on evening due/overdue
     if (eTarget != null) {
       if (now >= eTarget + GRACE) return set("Evening overdue", "late");
       if (now >= eTarget - DUE_SOON_WINDOW) return set("Evening due soon", "due");
+      return set("On track", "ok");
     }
+
+    // No evening target set? fallback
     return set("On track", "ok");
   }
 
-  // Evening due logic (fallback)
+  // ✅ Evening not taken (fallback)
   if (!eTaken && eTarget != null) {
     if (now >= eTarget + GRACE) return set("Evening overdue", "late");
     if (now >= eTarget - DUE_SOON_WINDOW) return set("Evening due soon", "due");
     return set("On track", "ok");
   }
 
+  // ✅ If something is missing, just be safe
   set("On track", "ok");
 }
 
@@ -710,4 +734,5 @@ if ("serviceWorker" in navigator) {
       .catch(console.error);
   });
 }
+
 
